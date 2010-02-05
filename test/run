@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+#
+# Unit test runner
+
+require 'test/unit'
+
+$:.push File.dirname(__FILE__)
+$:.push File.join( File.dirname( File.dirname(__FILE__) ), 'lib' )
+
+require 'protostruct_test'

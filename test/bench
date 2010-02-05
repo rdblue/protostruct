@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+require 'benchmark'
+require 'lib/protostruct'
+
+s = ProtoStruct::SymbolTable.new
+syms = [:o, :o1, :o2, :o3, :o4, :o5, :o6, :o7, :o8, :o9, :o10, :o11, :o12, :o13, :o14, :o15, :o16]
+syms.each do |name|
+  s << {:name => name, :type => 3}
+end
+
+# double the size of syms to have 50% miss rate
+syms << syms.collect do |name|
+  (name.to_s).gsub( /o/, 'm' )
+end
+
+puts syms.join(', ')
+
+puts Benchmark.measure { 100000.times do s.include1? syms[rand(syms.size)]; end }
+puts Benchmark.measure { 100000.times do s.include2? syms[rand(syms.size)]; end }
