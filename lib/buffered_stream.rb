@@ -6,11 +6,12 @@
 
 class ProtoStruct
   # this class is intended to extend IO objects for sending/receiving
-  # ProtoStruct-derived messages.  this clas is modeled after
+  # ProtoStruct-derived messages.  this class is modeled after
   # Net::SSH::BufferedIo(http://rubyforge.org/projects/net-ssh) by
   # Jamis Buck
   #
   # intended usage:
+  #  # sample message definition
   #  class Message < ProtoStruct
   #    length :l, 8.bits
   #    string :str, :length_field => :l
@@ -116,7 +117,7 @@ class ProtoStruct
       c.parse_stream( @in_buffer, &blk )
     end
 
-    # attempts to yiedl one message of class +c+ from the in buffer
+    # attempts to yield one message of class +c+ from the in buffer
     def get_next( c, &blk )
       c.parse_msg( @in_buffer, &blk )
     end

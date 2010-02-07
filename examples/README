@@ -1,0 +1,52 @@
+This bittorrent example is taken from a working implementation of the
+bittorrent protocol, which I'll release separately when I have time.  This is
+the library that ProtoStruct was built for.  It is a good demonstration of how
+simply ProtoStruct can define a working wire protocol, and how closely the code
+resembles the actual protocol specification.
+
+Here is an example of using the bittorrent protocol:
+
+#!/usr/bin/env ruby
+
+##### required libs ############################################################
+
+require 'rubygems'
+equire 'bittorrent'
+
+##### run ######################################################################
+
+dot_torrent = ARGV[0]
+
+m = BitTorrent::MetaData.new( File.open( dot_torrent ) )
+f = BitTorrent::Storage::File.new( './', m )
+tracker_response = BitTorrent::Tracker::Client.query( m, f )
+
+peer = tracker_response[:peers].first
+peer_sock = TCPSocket.new(peer[:ip], peer[:port])
+# mix the BitTorrent protocol into the socket
+peer_sock.extend( BitTorrent::Protocol::Stream )
+
+peers = [peer_sock]
+
+while true do
+  ready = select( peers,
+    peers.select { |p| p.pending_write? },
+    nil, 0.1 )
+
+  next if ready.nil?
+  readable, writeable = ready
+
+  readable.each do |r|
+    # buffer the available bytes
+    r.fill
+    r.incoming do |m|
+      case m.opcode
+      # do something with the bittorrent message
+      end
+    end
+  end
+
+  writeable.each do |w|
+    w.send_pending
+  end
+end
